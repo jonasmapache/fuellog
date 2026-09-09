@@ -13,9 +13,20 @@ def vehicle_stats(vehicle, entries) -> dict:
 
     avg_consumption = compute_avg_consumption_l_100km(entries)
 
+    # Prefer the capacity set on the vehicle; otherwise fall back to the largest
+    # full-tank fill-up we have seen, so the range still shows up right after an
+    # import even if nobody has entered the exact tank size yet.
+    tank_capacity = vehicle.tank_capacity_l
+    tank_capacity_estimated = False
+    if not tank_capacity:
+        full_fills = [e.liters for e in fuel_entries if e.full_tank and e.liters]
+        if full_fills:
+            tank_capacity = max(full_fills)
+            tank_capacity_estimated = True
+
     range_km = None
-    if avg_consumption and vehicle.tank_capacity_l:
-        range_km = round(vehicle.tank_capacity_l / avg_consumption * 100)
+    if avg_consumption and tank_capacity:
+        range_km = round(tank_capacity / avg_consumption * 100)
 
     odo_known = [e.odometer_km for e in entries if e.odometer_km is not None]
     total_distance = None
@@ -49,6 +60,7 @@ def vehicle_stats(vehicle, entries) -> dict:
     return {
         "avg_consumption": avg_consumption,
         "range_km": range_km,
+        "range_km_estimated": tank_capacity_estimated,
         "total_distance": total_distance,
         "total_spent": total_spent,
         "total_liters": total_liters,

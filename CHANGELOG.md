@@ -6,6 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-09
+
+### Fixed
+- Range ("range on a full tank") stayed blank after a CSV import because the
+  imported vehicles had no tank capacity. The range now falls back to the
+  largest full-tank fill-up on record (shown with a `~` prefix), and the CSV
+  importer sets a rough tank-size estimate on vehicles it creates.
+
+### Added
+- Time zone is now a searchable dropdown of IANA zones in Settings instead of a
+  free-text field (`tzdata` is bundled so the list is complete on any host).
+
 ## [0.1.1] - 2026-09-09
 
 ### Fixed

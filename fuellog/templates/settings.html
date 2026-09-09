@@ -23,7 +23,11 @@
   </div>
   <div class="step">
     <label class="big-label">{{ t('settings.timezone') }}</label>
-    <input type="text" name="timezone" value="{{ settings.timezone }}" placeholder="Europe/Berlin">
+    <select name="timezone">
+      {% for tz in timezone_options %}
+      <option value="{{ tz }}" {{ 'selected' if settings.timezone == tz else '' }}>{{ tz }}</option>
+      {% endfor %}
+    </select>
     <p class="step-hint">{{ t('settings.timezone_hint') }}</p>
   </div>
   <div class="step">

@@ -10,8 +10,9 @@ from ..i18n import LANGUAGES
 from ..importer import ImportError_, import_csv
 from ..models import User
 from ..security import csrf_protect
-from ..settings_service import update_settings
+from ..settings_service import get_settings, update_settings
 from ..templating import flash_text, render
+from ..timezones import timezone_options
 from .vehicles import FUEL_TYPES, _vehicles_ordered
 
 router = APIRouter(prefix="/settings", dependencies=[Depends(csrf_protect)])
@@ -24,6 +25,7 @@ def _view(request: Request, db: Session, user: User, *, notice: str | None = Non
         "vehicles": _vehicles_ordered(db),
         "fuel_types": FUEL_TYPES,
         "available_languages": LANGUAGES,
+        "timezone_options": timezone_options(get_settings(db).timezone),
         "notice": flash_text(request, db, notice, **msg_kwargs) if notice else None,
         "error": flash_text(request, db, error, **msg_kwargs) if error else None,
     }

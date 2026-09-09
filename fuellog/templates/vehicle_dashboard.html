@@ -25,7 +25,7 @@
   </div>
   <div class="stat-card">
     <div class="stat-icon">{{ icon('map-pin') }}</div>
-    <div class="stat-value">{{ stats.range_km if stats.range_km else t('common.dash') }}</div>
+    <div class="stat-value">{{ ('~' ~ stats.range_km) if (stats.range_km and stats.range_km_estimated) else (stats.range_km or t('common.dash')) }}</div>
     <div class="stat-label">{{ t('stat.range_full_tank') }}</div>
   </div>
   <div class="stat-card">

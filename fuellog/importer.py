@@ -150,5 +150,19 @@ def import_csv(db: Session, text: str) -> ImportResult:
     for vehicle_id in touched:
         entries = db.query(FuelEntry).filter(FuelEntry.vehicle_id == vehicle_id).all()
         recompute_vehicle(entries)
+
+    # Rough tank-size estimate for vehicles created during this import, so the
+    # range figure works out of the box (still editable in the vehicle settings).
+    created_names = set(result.vehicles_created)
+    for vehicle in vehicle_cache.values():
+        if vehicle.name not in created_names or vehicle.tank_capacity_l:
+            continue
+        fills = [
+            e.liters for e in vehicle.entries
+            if e.entry_type == "fuel" and e.full_tank and e.liters
+        ]
+        if fills:
+            vehicle.tank_capacity_l = round(max(fills) * 1.1)
+
     db.commit()
     return result

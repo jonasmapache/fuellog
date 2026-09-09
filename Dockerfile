@@ -21,7 +21,9 @@ COPY alembic.ini ./
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ARG APP_VERSION=dev
+# Left empty for local/branch builds so the footer shows fuellog.__version__.
+# CI passes the real version for tagged releases.
+ARG APP_VERSION=
 ENV APP_VERSION=$APP_VERSION
 
 # A fixed app user/group. The entrypoint re-maps it to PUID/PGID at runtime

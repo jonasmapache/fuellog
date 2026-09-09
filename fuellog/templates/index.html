@@ -20,7 +20,7 @@
       {% if v.brand_model %}<div class="vehicle-tile-sub">{{ v.brand_model }}</div>{% endif %}
       <div class="vehicle-tile-stats">
         <span>{{ icon('activity') }}{{ '%.1f'|format(s.avg_consumption) if s.avg_consumption else t('common.dash') }} {{ t('unit.l_per_100km') }}</span>
-        <span>{{ icon('map-pin') }}{{ s.range_km if s.range_km else t('common.dash') }} {{ t('unit.km') }}</span>
+        <span>{{ icon('map-pin') }}{{ ('~' ~ s.range_km) if (s.range_km and s.range_km_estimated) else (s.range_km or t('common.dash')) }} {{ t('unit.km') }}</span>
         <span>{{ icon('trending-up') }}{{ money(s.cost_per_km, decimals=3) if s.cost_per_km else t('common.dash') }}{{ t('unit.per_km') }}</span>
       </div>
       {% if s.has_estimates %}<div class="tile-badge-estimate">{{ t('tile.has_estimates') }}</div>{% endif %}
