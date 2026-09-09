@@ -1,0 +1,21 @@
+# runtime data
+/data/
+/.devdata/
+*.db
+*.sqlite3
+secret_key
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# os / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

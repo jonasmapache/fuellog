@@ -1,0 +1,7 @@
+vehicle,date,entry_type,odometer_km,liters,price_per_liter,total_cost,fuel_type,full_tank,station,station_address,station_lat,station_lon,notes
+Kamiq,2026-01-05,fuel,10000,41.2,1.749,72.06,E10,1,Shell Hauptstr.,,,,first fill after import
+Kamiq,2026-01-24,fuel,10620,38.7,1.779,,E10,1,Aral A5,,,,amount left blank on purpose
+Kamiq,2026-02-11,fuel,,35.0,1.729,60.52,E10,1,,,,,odometer unknown - will be estimated
+Kamiq,2026-03-02,odometer_only,11800,,,,,,,,,,workshop reading
+Grandland,2026-01-10,fuel,54210,52.0,1.699,88.35,Diesel,1,Total Ringstr.,,,,
+Grandland,2026-02-03,fuel,54980,49.4,1.719,84.92,Diesel,1,Total Ringstr.,,,,

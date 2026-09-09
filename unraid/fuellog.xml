@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>fuellog</Name>
+  <Repository>ghcr.io/jonasmapache/fuellog:latest</Repository>
+  <Registry>https://github.com/jonasmapache/fuellog/pkgs/container/fuellog</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/jonasmapache/fuellog/issues</Support>
+  <Project>https://github.com/jonasmapache/fuellog</Project>
+  <Overview>Self-hosted fuel-consumption tracker for your household's vehicles. Log fill-ups, see average consumption, range, cost per km and a monthly spending chart. Automatically estimates missing values (odometer readings, litres, amounts) and marks them as estimates. English and German UI, configurable currency, optional OpenStreetMap station lookup. All data lives in a single SQLite file under /data.</Overview>
+  <Category>Tools: HomeAutomation:</Category>
+  <WebUI>http://[IP]:[PORT:8562]/</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/jonasmapache/fuellog/main/docs/icon.svg</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Description>Self-hosted fuel-consumption tracker. Create your admin account on first launch; add vehicles and log fill-ups. Back up by copying the /data folder.</Description>
+  <Networking>
+    <Mode>bridge</Mode>
+    <Publish>
+      <Port>
+        <HostPort>8562</HostPort>
+        <ContainerPort>8000</ContainerPort>
+        <Protocol>tcp</Protocol>
+      </Port>
+    </Publish>
+  </Networking>
+  <Data>
+    <Volume>
+      <HostDir>/mnt/user/appdata/fuellog</HostDir>
+      <ContainerDir>/data</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+  </Data>
+  <Environment>
+    <Variable>
+      <Value>Europe/Berlin</Value>
+      <Name>TZ</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
+      <Value>en</Value>
+      <Name>APP_DEFAULT_LANG</Name>
+      <Mode/>
+    </Variable>
+  </Environment>
+  <Config Name="WebUI Port" Target="8000" Default="8562" Mode="tcp" Description="Port for the web interface" Type="Port" Display="always" Required="true" Mask="false">8562</Config>
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/fuellog" Mode="rw" Description="Database, uploaded photos and the generated secret key" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/fuellog</Config>
+  <Config Name="Timezone" Target="TZ" Default="Europe/Berlin" Mode="" Description="Container timezone (affects the default date on the entry form)" Type="Variable" Display="always" Required="false" Mask="false">Europe/Berlin</Config>
+  <Config Name="Default language" Target="APP_DEFAULT_LANG" Default="en" Mode="" Description="Fallback UI language before you set one in Settings (en or de)" Type="Variable" Display="advanced" Required="false" Mask="false">en</Config>
+  <Config Name="Secret key" Target="SECRET_KEY" Default="" Mode="" Description="Optional. Leave blank to let the app generate and persist one under /data" Type="Variable" Display="advanced" Required="false" Mask="true"/>
+</Container>

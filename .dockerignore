@@ -1,0 +1,17 @@
+.git
+.github
+.venv
+venv
+data
+.devdata
+docs
+kraftstofftracker-Docker
+*.tar.gz
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.DS_Store
+*.md
+!README.md
+LICENSE

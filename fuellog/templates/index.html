@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ t('index.title') }} – {{ t('app.name') }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ t('index.heading') }}</h1>
+
+<div class="tile-grid">
+  {% for tile in tiles %}
+  {% set v = tile.vehicle %}
+  {% set s = tile.stats %}
+  <a class="vehicle-tile" href="/vehicles/{{ v.id }}" style="--accent: {{ v.color }}">
+    <div class="vehicle-tile-photo">
+      {% if v.photo_filename %}
+        <img src="/photos/{{ v.photo_filename }}" alt="{{ v.name }}" loading="lazy">
+      {% else %}
+        <div class="vehicle-tile-photo-placeholder">{{ icon('image') }}</div>
+      {% endif %}
+    </div>
+    <div class="vehicle-tile-body">
+      <div class="vehicle-tile-name">{{ v.name }}</div>
+      {% if v.brand_model %}<div class="vehicle-tile-sub">{{ v.brand_model }}</div>{% endif %}
+      <div class="vehicle-tile-stats">
+        <span>{{ icon('activity') }}{{ '%.1f'|format(s.avg_consumption) if s.avg_consumption else t('common.dash') }} {{ t('unit.l_per_100km') }}</span>
+        <span>{{ icon('map-pin') }}{{ s.range_km if s.range_km else t('common.dash') }} {{ t('unit.km') }}</span>
+        <span>{{ icon('trending-up') }}{{ money(s.cost_per_km, decimals=3) if s.cost_per_km else t('common.dash') }}{{ t('unit.per_km') }}</span>
+      </div>
+      {% if s.has_estimates %}<div class="tile-badge-estimate">{{ t('tile.has_estimates') }}</div>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+
+  <a class="vehicle-tile vehicle-tile-add" href="/vehicles/new">
+    <div class="vehicle-tile-add-icon">{{ icon('plus') }}</div>
+    <div class="vehicle-tile-name">{{ t('index.add_vehicle') }}</div>
+  </a>
+</div>
+{% endblock %}

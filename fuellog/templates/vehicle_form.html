@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ (t('vehicle.edit_title', name=vehicle.name) if vehicle else t('vehicle.add_title')) }} – {{ t('app.name') }}{% endblock %}
+{% block content %}
+<div class="dash-header" style="--accent: {{ vehicle.color if vehicle else '#2563eb' }}">
+  <a href="{{ '/vehicles/%d'|format(vehicle.id) if vehicle else '/' }}" class="back-link">{{ icon('chevron-left') }}{{ t('common.back') }}</a>
+  <h1>{{ t('vehicle.edit_title', name=vehicle.name) if vehicle else t('vehicle.add_title') }}</h1>
+</div>
+
+<form method="post" class="entry-form flat" enctype="multipart/form-data"
+      action="{{ '/vehicles/new' if not vehicle else '/vehicles/%d/settings'|format(vehicle.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div class="step">
+    <label class="big-label">{{ t('vehicle.photo') }}</label>
+    <div class="photo-upload">
+      <div class="photo-preview" id="photoPreview">
+        {% if vehicle and vehicle.photo_filename %}
+          <img src="/photos/{{ vehicle.photo_filename }}" alt="">
+        {% else %}
+          <span class="photo-preview-placeholder">{{ icon('camera') }}</span>
+        {% endif %}
+      </div>
+      <label class="btn btn-secondary photo-upload-btn">
+        {{ t('vehicle.choose_photo') }}
+        <input type="file" name="photo" accept="image/png,image/jpeg,image/webp" id="photoInput" hidden>
+      </label>
+    </div>
+    <p class="step-hint">{{ t('vehicle.photo_hint') }}</p>
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('vehicle.name') }}</label>
+    <input type="text" name="name" required placeholder="{{ t('vehicle.name_placeholder') }}" value="{{ vehicle.name if vehicle else '' }}">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('vehicle.brand_model') }}</label>
+    <input type="text" name="brand_model" placeholder="{{ t('vehicle.brand_model_placeholder') }}" value="{{ vehicle.brand_model if vehicle else '' }}">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('vehicle.accent_color') }}</label>
+    <input type="color" name="color" value="{{ vehicle.color if vehicle else '#2563eb' }}">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('vehicle.tank_capacity') }}</label>
+    <input type="text" inputmode="decimal" name="tank_capacity_l"
+           value="{{ vehicle.tank_capacity_l|int if vehicle and vehicle.tank_capacity_l else '' }}"
+           placeholder="50">
+    <p class="step-hint">{{ t('vehicle.tank_capacity_hint') }}</p>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">{{ t('vehicle.save') }}</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('photoInput').addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    document.getElementById('photoPreview').innerHTML = '<img src="' + ev.target.result + '" alt="">';
+  };
+  reader.readAsDataURL(file);
+});
+</script>
+{% endblock %}

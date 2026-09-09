@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}{{ t('settings.title') }} – {{ t('app.name') }}{% endblock %}
+{% block content %}
+<div class="dash-header">
+  <a href="/" class="back-link">{{ icon('chevron-left') }}{{ t('common.back') }}</a>
+  <h1>{{ t('settings.heading') }}</h1>
+</div>
+
+{% if notice %}<p class="flash flash-ok">{{ icon('check') }}{{ notice }}</p>{% endif %}
+{% if error %}<p class="flash flash-error">{{ icon('alert-triangle') }}{{ error }}</p>{% endif %}
+
+<form method="post" action="/settings" class="entry-form flat">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <h2 class="settings-section">{{ icon('sliders') }}{{ t('settings.section.general') }}</h2>
+  <div class="step">
+    <label class="big-label">{{ t('settings.language') }}</label>
+    <select name="default_language">
+      {% for code, label in available_languages.items() %}
+      <option value="{{ code }}" {{ 'selected' if settings.default_language == code else '' }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.timezone') }}</label>
+    <input type="text" name="timezone" value="{{ settings.timezone }}" placeholder="Europe/Berlin">
+    <p class="step-hint">{{ t('settings.timezone_hint') }}</p>
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.default_fuel_type') }}</label>
+    <select name="default_fuel_type">
+      {% for ft in fuel_types %}
+      <option value="{{ ft }}" {{ 'selected' if settings.default_fuel_type == ft else '' }}>{{ ft }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <h2 class="settings-section">{{ icon('dollar-sign') }}{{ t('settings.section.currency') }}</h2>
+  <div class="step">
+    <label class="big-label">{{ t('settings.currency_code') }}</label>
+    <input type="text" name="currency_code" value="{{ settings.currency_code }}" maxlength="8" placeholder="EUR">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.currency_symbol') }}</label>
+    <input type="text" name="currency_symbol" value="{{ settings.currency_symbol }}" maxlength="8" placeholder="€">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.currency_position') }}</label>
+    <select name="currency_position">
+      <option value="after" {{ 'selected' if settings.currency_position == 'after' else '' }}>{{ t('settings.position_after') }}</option>
+      <option value="before" {{ 'selected' if settings.currency_position == 'before' else '' }}>{{ t('settings.position_before') }}</option>
+    </select>
+    <p class="step-hint">{{ t('settings.currency_preview') }}: <strong>{{ money(123.45) }}</strong></p>
+  </div>
+
+  <h2 class="settings-section">{{ icon('globe') }}{{ t('settings.section.map') }}</h2>
+  <div class="step">
+    <label class="checkbox-row">
+      <input type="checkbox" name="geocoding_enabled" {{ 'checked' if settings.geocoding_enabled else '' }}>
+      {{ t('settings.geocoding_enabled') }}
+    </label>
+    <p class="step-hint">{{ t('settings.geocoding_hint') }}</p>
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.nominatim_url') }}</label>
+    <input type="text" name="nominatim_url" value="{{ settings.nominatim_url }}">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.tile_url') }}</label>
+    <input type="text" name="tile_url" value="{{ settings.tile_url }}">
+  </div>
+  <div class="step">
+    <label class="big-label">{{ t('settings.tile_attribution') }}</label>
+    <input type="text" name="tile_attribution" value="{{ settings.tile_attribution }}">
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-block">{{ t('common.save') }}</button>
+</form>
+
+<div class="card">
+  <h2 class="settings-section">{{ icon('users') }}{{ t('settings.section.users') }}</h2>
+  <ul class="user-list">
+    {% for u in users %}
+    <li>
+      <span class="user-name">{{ u.username }}
+        {% if u.is_admin %}<span class="badge badge-calc">{{ t('settings.users.admin_badge') }}</span>{% endif %}
+        {% if u.id == current_user.id %}<span class="badge">{{ t('settings.users.you_badge') }}</span>{% endif %}
+      </span>
+      <span class="user-actions">
+        <form method="post" action="/settings/users/{{ u.id }}/password" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <input type="password" name="password" placeholder="{{ t('settings.users.reset_password') }}" minlength="8" required>
+          <button type="submit" class="btn btn-secondary btn-sm">{{ t('common.save') }}</button>
+        </form>
+        {% if not (u.is_admin and users|selectattr('is_admin')|list|length == 1) %}
+        <form method="post" action="/settings/users/{{ u.id }}/delete" class="inline-form"
+              onsubmit="return confirm('{{ t('settings.users.delete_confirm') }}');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="icon-btn" title="{{ t('common.delete') }}">{{ icon('trash') }}</button>
+        </form>
+        {% endif %}
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="/settings/users/add" class="add-user-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="text" name="username" placeholder="{{ t('settings.users.username') }}" required>
+    <input type="password" name="password" placeholder="{{ t('settings.users.password') }}" minlength="8" required>
+    <label class="checkbox-row"><input type="checkbox" name="is_admin"> {{ t('settings.users.make_admin') }}</label>
+    <button type="submit" class="btn btn-primary btn-sm">{{ icon('plus') }}{{ t('settings.users.add') }}</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 class="settings-section">{{ icon('database') }}{{ t('settings.section.data') }}</h2>
+  <p><a class="btn btn-secondary" href="/settings/export">{{ icon('download') }}{{ t('settings.data.export') }}</a></p>
+  <p class="step-hint">{{ t('settings.data.export_hint') }}</p>
+  <form method="post" action="/settings/import" enctype="multipart/form-data" class="import-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label class="big-label">{{ t('settings.data.import') }}</label>
+    <input type="file" name="file" accept=".csv,text/csv" required>
+    <button type="submit" class="btn btn-primary btn-sm">{{ icon('upload') }}{{ t('settings.data.import_button') }}</button>
+    <p class="step-hint">{{ t('settings.data.import_hint') }}</p>
+  </form>
+</div>
+
+<div class="card card-danger">
+  <h2 class="settings-section">{{ icon('alert-triangle') }}{{ t('settings.section.danger') }}</h2>
+  <label class="big-label">{{ t('settings.danger.delete_vehicle') }}</label>
+  <p class="step-hint">{{ t('settings.danger.delete_vehicle_hint') }}</p>
+  {% if vehicles %}
+  <ul class="danger-list">
+    {% for v in vehicles %}
+    <li>
+      <span>{{ v.name }}{% if v.brand_model %} <span class="text-muted">· {{ v.brand_model }}</span>{% endif %}</span>
+      <form method="post" action="/vehicles/{{ v.id }}/delete"
+            onsubmit="return confirm('{{ t('settings.danger.delete_vehicle_confirm') }}');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <button type="submit" class="btn btn-danger btn-sm">{{ icon('trash') }}{{ t('common.delete') }}</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-muted">{{ t('settings.danger.no_vehicles') }}</p>
+  {% endif %}
+</div>
+{% endblock %}

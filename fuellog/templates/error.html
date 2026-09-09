@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ t(title_key) }} – {{ t('app.name') }}{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">{{ icon('alert-triangle') }}</div>
+    <h1>{{ t(title_key) }}</h1>
+    <p class="setup-intro">{{ t(body_key) }}</p>
+    <a href="/" class="btn btn-primary btn-block">{{ t('error.home') }}</a>
+  </div>
+</div>
+{% endblock %}

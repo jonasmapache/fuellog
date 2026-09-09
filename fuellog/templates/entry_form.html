@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}{{ (t('entry.edit_title') if entry else t('entry.new_title')) }} – {{ vehicle.name }}{% endblock %}
+{% block content %}
+<div class="dash-header" style="--accent: {{ vehicle.color }}">
+  <a href="/vehicles/{{ vehicle.id }}" class="back-link">{{ icon('chevron-left') }}{{ vehicle.name }}</a>
+  <h1>{{ t('entry.edit_title') if entry else t('entry.new_title') }}</h1>
+</div>
+
+{% set is_odo = entry and entry.entry_type == 'odometer_only' %}
+<form method="post"
+      action="{{ '/vehicles/%d/entry/new'|format(vehicle.id) if not entry else '/vehicles/%d/entry/%d/edit'|format(vehicle.id, entry.id) }}"
+      id="entryForm" class="entry-form {{ 'wizard' if not entry else 'flat' }} {{ 'odometer-only' if is_odo else '' }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+  <div class="entry-type-toggle">
+    <label class="{{ 'active' if not is_odo else '' }}">
+      <input type="radio" name="entry_type" value="fuel" {{ 'checked' if not is_odo else '' }}> {{ t('entry.type_fuel') }}
+    </label>
+    <label class="{{ 'active' if is_odo else '' }}">
+      <input type="radio" name="entry_type" value="odometer_only" {{ 'checked' if is_odo else '' }}> {{ t('entry.type_odometer_only') }}
+    </label>
+  </div>
+
+  <div class="step" data-step="1">
+    <label class="big-label">{{ t('entry.date') }}</label>
+    <input type="date" name="date" value="{{ entry.date.isoformat() if entry else today }}" required>
+    <p class="step-hint">{{ t('entry.date_hint') }}</p>
+  </div>
+
+  <div class="step" data-step="2">
+    <label class="big-label">{{ t('entry.odometer') }}</label>
+    <input type="text" inputmode="numeric" name="odometer_km" placeholder="{{ t('entry.odometer_placeholder') }}"
+           value="{{ entry.odometer_km|int if entry and entry.odometer_km is not none else '' }}">
+    <p class="step-hint">{{ t('entry.odometer_hint') }}</p>
+  </div>
+
+  <div class="step" data-step="3" data-fuel-only>
+    <label class="big-label">{{ t('entry.liters') }}</label>
+    <input type="text" inputmode="decimal" name="liters" id="f_liters" placeholder="{{ t('entry.liters_placeholder') }}"
+           value="{{ '%.2f'|format(entry.liters)|replace('.', ',') if entry and entry.liters is not none else '' }}">
+    <p class="step-hint">{{ t('entry.liters_hint') }}</p>
+  </div>
+
+  <div class="step" data-step="4" data-fuel-only>
+    <label class="big-label">{{ t('entry.price_per_liter') }}</label>
+    <input type="text" inputmode="decimal" name="price_per_liter" id="f_price" placeholder="{{ t('entry.price_placeholder') }}"
+           value="{{ '%.3f'|format(entry.price_per_liter)|replace('.', ',') if entry and entry.price_per_liter is not none else '' }}">
+    <label class="big-label" style="margin-top:1rem">{{ t('entry.total_cost') }}</label>
+    <input type="text" inputmode="decimal" name="total_cost" id="f_cost" placeholder="{{ t('entry.total_placeholder') }}"
+           value="{{ '%.2f'|format(entry.total_cost)|replace('.', ',') if entry and entry.total_cost is not none else '' }}">
+    <p class="step-hint">{{ t('entry.amount_hint') }}</p>
+  </div>
+
+  <div class="step" data-step="5" data-fuel-only>
+    <label class="big-label">{{ t('entry.fuel_type') }}</label>
+    <select name="fuel_type">
+      {% set selected_ft = entry.fuel_type if entry else default_fuel_type %}
+      {% for ft in fuel_types %}
+      <option value="{{ ft }}" {{ 'selected' if selected_ft == ft else '' }}>{{ ft }}</option>
+      {% endfor %}
+    </select>
+    <label class="checkbox-row" style="margin-top:1.2rem">
+      <input type="checkbox" name="full_tank" {{ 'checked' if (not entry) or entry.full_tank else '' }}>
+      {{ t('entry.full_tank') }}
+    </label>
+  </div>
+
+  <div class="step" data-step="6" data-fuel-only>
+    <label class="big-label">{{ t('entry.station') }}</label>
+    <input type="text" id="station_name" name="station_name" autocomplete="off" placeholder="{{ t('entry.station_placeholder') }}"
+           value="{{ entry.station.name if entry and entry.station else '' }}">
+    <div id="station_suggestions" class="suggestions"></div>
+    <input type="hidden" id="station_address" name="station_address" value="{{ entry.station.address if entry and entry.station else '' }}">
+    <input type="hidden" id="station_lat" name="station_lat" value="{{ entry.station.lat if entry and entry.station else '' }}">
+    <input type="hidden" id="station_lon" name="station_lon" value="{{ entry.station.lon if entry and entry.station else '' }}">
+    <div id="station_address_display" class="station-address">{{ entry.station.address if entry and entry.station else '' }}</div>
+    <div id="minimap" class="minimap"></div>
+  </div>
+
+  <div class="step" data-step="7">
+    <label class="big-label">{{ t('entry.notes') }}</label>
+    <textarea name="notes" rows="2" placeholder="{{ t('entry.notes_placeholder') }}">{{ entry.notes if entry else '' }}</textarea>
+    <button type="submit" class="btn btn-primary btn-block">{{ t('entry.save') }}</button>
+  </div>
+
+  <div class="wizard-nav">
+    <button type="button" id="prevBtn" class="btn btn-secondary">{{ icon('chevron-left') }}{{ t('entry.prev') }}</button>
+    <button type="button" id="nextBtn" class="btn btn-primary">{{ t('entry.next') }}{{ icon('chevron-right') }}</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.EXISTING_STATIONS = {{ stations_json | tojson }};
+  window.FUELLOG_MAP = {
+    enabled: {{ 'true' if map_config.enabled else 'false' }},
+    tileUrl: {{ map_config.tile_url | tojson }},
+    attribution: {{ map_config.tile_attribution | tojson }},
+    labels: { known: {{ t('entry.suggestion_known') | tojson }}, osm: {{ t('entry.suggestion_osm') | tojson }} }
+  };
+</script>
+<script src="/static/js/app.js?v={{ app_version }}"></script>
+{% endblock %}

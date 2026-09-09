@@ -1,0 +1,20 @@
+services:
+  fuellog:
+    image: ghcr.io/jonasmapache/fuellog:latest
+    container_name: fuellog
+    restart: unless-stopped
+    ports:
+      - "8562:8000"
+    environment:
+      # All optional. The app generates and persists its own SECRET_KEY under
+      # /data if you don't set one here.
+      - TZ=Europe/Berlin
+      # - APP_DEFAULT_LANG=en
+      # - SECRET_KEY=change-me-to-a-long-random-string
+      # - SESSION_HTTPS_ONLY=true   # set when always served over HTTPS
+    volumes:
+      - ./data:/data
+      # Unraid Compose Manager stores this file outside /mnt/user/appdata, so a
+      # relative ./data may resolve somewhere unexpected. If in doubt use an
+      # absolute path, e.g.:
+      #   - /mnt/user/appdata/fuellog/data:/data

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="{{ lang }}"{% if theme in ('light', 'dark') %} data-theme="{{ theme }}"{% endif %}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>{% block title %}{{ t('app.name') }}{% endblock %}</title>
+<script>
+  // Apply the stored theme before first paint to avoid a flash.
+  (function () {
+    try {
+      var stored = localStorage.getItem('fuellog-theme');
+      if (stored === 'light' || stored === 'dark') {
+        document.documentElement.setAttribute('data-theme', stored);
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css?v={{ app_version }}">
+<link rel="stylesheet" href="/static/css/style.css?v={{ app_version }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%232563eb%22 stroke-width=%222%22><path d=%22M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z%22/></svg>">
+</head>
+<body>
+{% if current_user %}
+<header class="topbar">
+  <a href="/" class="brand">{{ icon('droplet') }}<span>{{ t('app.name') }}</span></a>
+  <nav>
+    <a href="/vehicles/new" class="nav-link">{{ icon('plus') }}<span>{{ t('nav.add_vehicle') }}</span></a>
+    {% if current_user.is_admin %}
+    <a href="/settings" class="nav-link">{{ icon('settings') }}<span>{{ t('nav.settings') }}</span></a>
+    {% endif %}
+    <button type="button" class="nav-link theme-toggle" id="themeToggle" title="{{ t('theme.toggle') }}" aria-label="{{ t('theme.toggle') }}">{{ icon('moon') }}{{ icon('sun') }}</button>
+    <a href="/logout" class="nav-link">{{ icon('log-out') }}<span>{{ t('nav.logout') }}</span></a>
+  </nav>
+</header>
+{% endif %}
+<main class="container">
+{% block content %}{% endblock %}
+</main>
+<footer class="app-footer">
+  <span>{{ t('footer.version', version=app_version) }}</span>
+  {% if languages|length > 1 %}
+  <form method="post" action="/lang" class="lang-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="next" value="{{ request.url.path }}">
+    {% for code, label in languages.items() %}
+      <button type="submit" name="lang" value="{{ code }}" class="lang-link {{ 'active' if code == lang else '' }}">{{ label }}</button>
+    {% endfor %}
+  </form>
+  {% endif %}
+</footer>
+<script src="/static/vendor/leaflet/leaflet.js?v={{ app_version }}"></script>
+<script src="/static/vendor/chartjs/chart.umd.min.js?v={{ app_version }}"></script>
+<script>
+  (function () {
+    var btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var root = document.documentElement;
+      var current = root.getAttribute('data-theme');
+      var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var next = (current === 'dark' || (!current && systemDark)) ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('fuellog-theme', next); } catch (e) {}
+      document.cookie = 'theme=' + next + ';path=/;max-age=31536000;samesite=lax';
+    });
+  })();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

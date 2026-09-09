@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}{{ vehicle.name }} – {{ t('app.name') }}{% endblock %}
+{% block content %}
+<div class="dash-header" style="--accent: {{ vehicle.color }}">
+  <a href="/" class="back-link">{{ icon('chevron-left') }}{{ t('dash.back_to_vehicles') }}</a>
+  <div class="dash-title">
+    {% if vehicle.photo_filename %}
+      <img class="dash-photo" src="/photos/{{ vehicle.photo_filename }}" alt="{{ vehicle.name }}">
+    {% endif %}
+    <div>
+      <h1>{{ vehicle.name }}</h1>
+      {% if vehicle.brand_model %}<div class="dash-sub">{{ vehicle.brand_model }}</div>{% endif %}
+    </div>
+    <a class="settings-link" href="/vehicles/{{ vehicle.id }}/settings" title="{{ t('dash.edit_vehicle') }}">{{ icon('settings') }}</a>
+  </div>
+</div>
+
+<a class="btn btn-primary btn-block btn-tanken" href="/vehicles/{{ vehicle.id }}/entry/new">{{ icon('droplet') }}{{ t('dash.log_fill_up') }}</a>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon">{{ icon('activity') }}</div>
+    <div class="stat-value">{{ '%.1f'|format(stats.avg_consumption) if stats.avg_consumption else t('common.dash') }}</div>
+    <div class="stat-label">{{ t('stat.avg_consumption') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">{{ icon('map-pin') }}</div>
+    <div class="stat-value">{{ stats.range_km if stats.range_km else t('common.dash') }}</div>
+    <div class="stat-label">{{ t('stat.range_full_tank') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">{{ icon('trending-up') }}</div>
+    <div class="stat-value">{{ money(stats.cost_per_km, decimals=3) if stats.cost_per_km else t('common.dash') }}</div>
+    <div class="stat-label">{{ t('stat.cost_per_km') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">{{ icon('droplet') }}</div>
+    <div class="stat-value">{{ money(stats.total_spent) }}</div>
+    <div class="stat-label">{{ t('stat.total_spent') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">{{ icon('map-pin') }}</div>
+    <div class="stat-value">{{ stats.total_distance|int if stats.total_distance else t('common.dash') }}</div>
+    <div class="stat-label">{{ t('stat.distance_tracked') }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">{{ icon('trending-up') }}</div>
+    <div class="stat-value">{{ money(stats.avg_price_per_liter, decimals=3) if stats.avg_price_per_liter else t('common.dash') }}</div>
+    <div class="stat-label">{{ t('stat.avg_price_per_liter') }}</div>
+  </div>
+</div>
+
+{% if stats.has_estimates %}
+<p class="hint"><span class="badge badge-est">≈</span> <span class="badge badge-calc">Σ</span> {{ t('dash.estimates_hint') }}</p>
+{% endif %}
+
+{% if stats.monthly_trend|length > 1 %}
+<div class="card">
+  <h2>{{ t('dash.monthly_spending') }}</h2>
+  <canvas id="trendChart" height="120"></canvas>
+</div>
+{% endif %}
+
+<div class="card card-table">
+  <h2>{{ t('dash.recent_fill_ups') }}</h2>
+  <div class="table-scroll">
+  <table class="entries-table">
+    <thead>
+      <tr>
+        <th>{{ t('table.date') }}</th>
+        <th class="num">{{ t('table.liters') }}</th>
+        <th class="num">{{ t('table.price_per_l') }}</th>
+        <th class="num">{{ t('table.amount') }}</th>
+        <th class="num">{{ t('table.odometer') }}</th>
+        <th>{{ t('table.station') }}</th>
+        <th class="center">{{ t('table.full') }}</th>
+        <th class="actions-col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in recent %}
+      <tr>
+        <td class="cell-date">{{ e.date.strftime('%d.%m.%Y') }}</td>
+        <td class="num">{{ '%.2f'|format(e.liters) if e.liters is not none else t('common.dash') }}{% if 'liters' in (e.estimated_fields or []) %}<span class="badge badge-est" title="{{ t('badge.estimated_title') }}">≈</span>{% elif 'liters' in (e.computed_fields or []) %}<span class="badge badge-calc" title="{{ t('badge.computed_title') }}">Σ</span>{% endif %}</td>
+        <td class="num">{{ '%.3f'|format(e.price_per_liter) if e.price_per_liter is not none else t('common.dash') }}</td>
+        <td class="num cell-cost">{{ money(e.total_cost) if e.total_cost is not none else t('common.dash') }}{% if 'total_cost' in (e.estimated_fields or []) %}<span class="badge badge-est" title="{{ t('badge.estimated_title') }}">≈</span>{% elif 'total_cost' in (e.computed_fields or []) %}<span class="badge badge-calc" title="{{ t('badge.computed_title') }}">Σ</span>{% endif %}</td>
+        <td class="num">{{ '{:,}'.format(e.odometer_km|int).replace(',', '.') if e.odometer_km is not none else t('common.dash') }}{% if 'odometer_km' in (e.estimated_fields or []) %}<span class="badge badge-est" title="{{ t('badge.estimated_title') }}">≈</span>{% endif %}</td>
+        <td class="cell-station" title="{{ e.station.name if e.station else '' }}">{{ e.station.name if e.station else t('common.dash') }}</td>
+        <td class="center">{% if e.full_tank %}<span class="check-icon">{{ icon('check') }}</span>{% endif %}</td>
+        <td class="row-actions">
+          <a href="/vehicles/{{ vehicle.id }}/entry/{{ e.id }}/edit" title="{{ t('common.edit') }}" class="icon-btn">{{ icon('edit') }}</a>
+          <form method="post" action="/vehicles/{{ vehicle.id }}/entry/{{ e.id }}/delete" onsubmit="return confirm('{{ t('entry.delete_confirm') }}');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="icon-btn" title="{{ t('common.delete') }}">{{ icon('trash') }}</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" class="empty-row">{{ t('dash.no_entries') }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if stats.monthly_trend|length > 1 %}
+<script>
+(function () {
+  var css = getComputedStyle(document.documentElement);
+  var grid = css.getPropertyValue('--border').trim() || '#e5e7eb';
+  var tick = css.getPropertyValue('--text-muted').trim() || '#6b7280';
+  new Chart(document.getElementById('trendChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ stats.monthly_trend | map(attribute='label') | list | tojson }},
+      datasets: [{
+        label: {{ t('chart.spending') | tojson }},
+        data: {{ stats.monthly_trend | map(attribute='total') | list | tojson }},
+        backgroundColor: '{{ vehicle.color }}',
+        borderRadius: 3,
+        maxBarThickness: 34
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: grid }, ticks: { color: tick } },
+        x: { grid: { display: false }, ticks: { color: tick } }
+      }
+    }
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}
