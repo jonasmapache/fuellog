@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-09
+
+### Fixed
+- `PermissionError` on a fresh `/data` bind mount that Docker created as
+  `root:root`. The container now starts as root, chowns `/data` (recursively,
+  only when needed) and re-maps its app user to `PUID`/`PGID`, then drops to
+  that non-root user via `gosu` before running migrations and the app. Works
+  for new and existing data directories, and is skipped when the container is
+  started with an explicit `--user`.
+
+### Added
+- `PUID` / `PGID` environment variables (default `1000` / `1000`; Unraid `99` /
+  `100`) and matching entries in the compose file and Unraid template.
+
+## [0.1.0]
+
 ### Added
 - First public release of fuellog, rebuilt from a private prototype.
 - First-run setup wizard creating a bcrypt/argon2-hashed admin account;

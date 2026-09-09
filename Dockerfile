@@ -2,12 +2,14 @@ FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    DATA_DIR=/data
+    DATA_DIR=/data \
+    PUID=1000 \
+    PGID=1000
 
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl gosu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -22,11 +24,12 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 ARG APP_VERSION=dev
 ENV APP_VERSION=$APP_VERSION
 
-# Run as an unprivileged user; /data is a mounted volume owned at runtime.
-RUN useradd --system --uid 10001 --home-dir /app appuser \
+# A fixed app user/group. The entrypoint re-maps it to PUID/PGID at runtime
+# and fixes ownership of the mounted /data before dropping privileges.
+RUN groupadd -g 10001 appuser \
+    && useradd -u 10001 -g appuser -d /app -s /usr/sbin/nologin appuser \
     && mkdir -p /data \
     && chown -R appuser:appuser /app /data
-USER appuser
 
 VOLUME ["/data"]
 EXPOSE 8000
@@ -34,5 +37,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD curl -fsS http://localhost:8000/healthz || exit 1
 
+# Starts as root so the entrypoint can chown /data, then drops to the app user.
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["uvicorn", "fuellog.main:app", "--host", "0.0.0.0", "--port", "8000"]

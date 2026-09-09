@@ -51,13 +51,19 @@ docker compose up -d
 Open `http://<host>:8562`, create the administrator account, add a vehicle and
 log your first fill-up. That's it – no environment variables are required.
 
+The container starts as root only to fix ownership of the `/data` bind mount
+(handy when Docker created it as `root:root`), then immediately drops to a
+non-root user. Set `PUID` / `PGID` if you want that user to match a specific
+host account (see [Configuration](#configuration)).
+
 ## Unraid
 
 **Community Applications template:** add
 `https://raw.githubusercontent.com/jonasmapache/fuellog/main/unraid/fuellog.xml`
 as a template repository (Settings → Community Applications), or import
 [`unraid/fuellog.xml`](unraid/fuellog.xml) manually. Map `/data` to
-`/mnt/user/appdata/fuellog` and set the WebUI port.
+`/mnt/user/appdata/fuellog` and set the WebUI port. Set `PUID=99` and
+`PGID=100` to write data as Unraid's `nobody:users`.
 
 **Compose Manager:** paste the compose file above. Compose Manager stores the
 stack outside `/mnt/user/appdata`, so prefer an **absolute** volume path:
@@ -80,6 +86,7 @@ Everything except the data volume is optional.
 | Variable             | Default              | Purpose |
 |----------------------|----------------------|---------|
 | `TZ`                 | `UTC`                | Container timezone; also the default "today" on the entry form (can be overridden in Settings). |
+| `PUID` / `PGID`      | `1000` / `1000`      | User/group the app runs as. The entrypoint chowns `/data` to these ids on start. Unraid: `99` / `100`. |
 | `APP_DEFAULT_LANG`   | `en`                 | Fallback UI language (`en` / `de`) until one is chosen in Settings. |
 | `SECRET_KEY`         | *(generated)*        | Session signing key. If unset, a random key is generated once and stored at `/data/secret_key`. |
 | `SESSION_HTTPS_ONLY` | `false`              | Mark the session cookie `Secure` (set when always behind HTTPS). |

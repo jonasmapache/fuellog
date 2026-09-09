@@ -45,6 +45,16 @@
       <Mode/>
     </Variable>
     <Variable>
+      <Value>99</Value>
+      <Name>PUID</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
+      <Value>100</Value>
+      <Name>PGID</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
       <Value>en</Value>
       <Name>APP_DEFAULT_LANG</Name>
       <Mode/>
@@ -53,6 +63,8 @@
   <Config Name="WebUI Port" Target="8000" Default="8562" Mode="tcp" Description="Port for the web interface" Type="Port" Display="always" Required="true" Mask="false">8562</Config>
   <Config Name="Data" Target="/data" Default="/mnt/user/appdata/fuellog" Mode="rw" Description="Database, uploaded photos and the generated secret key" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/fuellog</Config>
   <Config Name="Timezone" Target="TZ" Default="Europe/Berlin" Mode="" Description="Container timezone (affects the default date on the entry form)" Type="Variable" Display="always" Required="false" Mask="false">Europe/Berlin</Config>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User id the app runs as; /data is chowned to this on start (Unraid: 99)" Type="Variable" Display="always" Required="false" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group id the app runs as (Unraid: 100)" Type="Variable" Display="always" Required="false" Mask="false">100</Config>
   <Config Name="Default language" Target="APP_DEFAULT_LANG" Default="en" Mode="" Description="Fallback UI language before you set one in Settings (en or de)" Type="Variable" Display="advanced" Required="false" Mask="false">en</Config>
   <Config Name="Secret key" Target="SECRET_KEY" Default="" Mode="" Description="Optional. Leave blank to let the app generate and persist one under /data" Type="Variable" Display="advanced" Required="false" Mask="true"/>
 </Container>
