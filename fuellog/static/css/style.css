@@ -194,10 +194,6 @@ a { color: inherit; text-decoration: none; }
 }
 .vehicle-tile-stats span { display: flex; align-items: center; gap: 0.42rem; }
 .vehicle-tile-stats .icon { color: var(--text-faint); width: 15px; height: 15px; }
-.tile-badge-estimate {
-  margin-top: 0.65rem; font-size: 0.66rem; font-weight: 600; color: var(--est-fg);
-  background: var(--est-bg); border: 1px solid var(--est-border); padding: 0.15rem 0.55rem; border-radius: 999px; display: inline-block;
-}
 .vehicle-tile-add {
   align-items: center; justify-content: center; gap: 0.9rem;
   color: var(--text-muted); border-style: dashed; border-width: 1.5px; box-shadow: none; min-height: 300px; padding: 2rem 1.2rem;

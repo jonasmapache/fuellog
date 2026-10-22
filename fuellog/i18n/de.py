@@ -43,7 +43,6 @@ TRANSLATIONS = {
     "index.title": "Fahrzeug wählen",
     "index.heading": "Welches Auto tankst du?",
     "index.add_vehicle": "Fahrzeug hinzufügen",
-    "tile.has_estimates": "enthält Schätzwerte",
     "unit.l_per_100km": "L/100 km",
     "unit.km": "km",
     "unit.per_km": "/km",

@@ -43,7 +43,6 @@ TRANSLATIONS = {
     "index.title": "Choose a vehicle",
     "index.heading": "Which vehicle are you filling up?",
     "index.add_vehicle": "Add vehicle",
-    "tile.has_estimates": "contains estimates",
     "unit.l_per_100km": "L/100 km",
     "unit.km": "km",
     "unit.per_km": "/km",

@@ -23,7 +23,6 @@
         <span>{{ icon('map-pin') }}{{ ('~' ~ s.range_km) if (s.range_km and s.range_km_estimated) else (s.range_km or t('common.dash')) }} {{ t('unit.km') }}</span>
         <span>{{ icon('trending-up') }}{{ money(s.cost_per_km, decimals=3) if s.cost_per_km else t('common.dash') }}{{ t('unit.per_km') }}</span>
       </div>
-      {% if s.has_estimates %}<div class="tile-badge-estimate">{{ t('tile.has_estimates') }}</div>{% endif %}
     </div>
   </a>
   {% endfor %}
