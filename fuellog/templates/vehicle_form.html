@@ -24,7 +24,6 @@
         <input type="file" name="photo" accept="image/png,image/jpeg,image/webp" id="photoInput" hidden>
       </label>
     </div>
-    <p class="step-hint">{{ t('vehicle.photo_hint') }}</p>
   </div>
   <div class="step">
     <label class="big-label">{{ t('vehicle.name') }}</label>
@@ -43,7 +42,6 @@
     <input type="text" inputmode="decimal" name="tank_capacity_l"
            value="{{ vehicle.tank_capacity_l|int if vehicle and vehicle.tank_capacity_l else '' }}"
            placeholder="50">
-    <p class="step-hint">{{ t('vehicle.tank_capacity_hint') }}</p>
   </div>
   <button type="submit" class="btn btn-primary btn-block">{{ t('vehicle.save') }}</button>
 </form>

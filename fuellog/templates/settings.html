@@ -28,7 +28,6 @@
       <option value="{{ tz }}" {{ 'selected' if settings.timezone == tz else '' }}>{{ tz }}</option>
       {% endfor %}
     </select>
-    <p class="step-hint">{{ t('settings.timezone_hint') }}</p>
   </div>
   <div class="step">
     <label class="big-label">{{ t('settings.default_fuel_type') }}</label>
@@ -63,7 +62,6 @@
       <input type="checkbox" name="geocoding_enabled" {{ 'checked' if settings.geocoding_enabled else '' }}>
       {{ t('settings.geocoding_enabled') }}
     </label>
-    <p class="step-hint">{{ t('settings.geocoding_hint') }}</p>
   </div>
   <div class="step">
     <label class="big-label">{{ t('settings.nominatim_url') }}</label>
@@ -119,20 +117,17 @@
 <div class="card">
   <h2 class="settings-section">{{ icon('database') }}{{ t('settings.section.data') }}</h2>
   <p><a class="btn btn-secondary" href="/settings/export">{{ icon('download') }}{{ t('settings.data.export') }}</a></p>
-  <p class="step-hint">{{ t('settings.data.export_hint') }}</p>
   <form method="post" action="/settings/import" enctype="multipart/form-data" class="import-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
     <label class="big-label">{{ t('settings.data.import') }}</label>
     <input type="file" name="file" accept=".csv,text/csv" required>
     <button type="submit" class="btn btn-primary btn-sm">{{ icon('upload') }}{{ t('settings.data.import_button') }}</button>
-    <p class="step-hint">{{ t('settings.data.import_hint') }}</p>
   </form>
 </div>
 
 <div class="card card-danger">
   <h2 class="settings-section">{{ icon('alert-triangle') }}{{ t('settings.section.danger') }}</h2>
   <label class="big-label">{{ t('settings.danger.delete_vehicle') }}</label>
-  <p class="step-hint">{{ t('settings.danger.delete_vehicle_hint') }}</p>
   {% if vehicles %}
   <ul class="danger-list">
     {% for v in vehicles %}
